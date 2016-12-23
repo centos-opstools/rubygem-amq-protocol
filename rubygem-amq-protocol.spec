@@ -1,25 +1,23 @@
 %global gem_name amq-protocol
 
-Name: rubygem-%{gem_name}
-Version: 1.9.2
-Release: 3%{?dist}
-Summary: AMQP 0.9.1 encoder & decoder
-Group: Development/Languages
-License: MIT
-URL: http://github.com/ruby-amqp/amq-protocol
-Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
-BuildRequires: ruby(release)
-BuildRequires: rubygems-devel
-BuildRequires: ruby
-Requires: rubygems
-%if 0%{?fedora} >= 22
-BuildRequires: rubygem(rspec2)
-%else
-BuildRequires: rubygem(rspec)
-%endif
+Name:             rubygem-%{gem_name}
+Version:          2.0.1
+Release:          1%{?dist}
+Summary:          AMQP 0.9.1 encoder & decoder
+Group:            Development/Languages
+License:          MIT
+URL:              http://github.com/ruby-amqp/amq-protocol
+Source0:          https://rubygems.org/gems/%{gem_name}-%{version}.gem
+
+BuildRequires:    ruby(release)
+BuildRequires:    rubygems-devel
+BuildRequires:    ruby
+BuildRequires:    rubygem(rspec)
+BuildRequires:    rubygem(rspec-its)
+
 BuildArch: noarch
-%if 0%{?fc20} || 0%{?el7}
-Provides: rubygem(%{gem_name}) = %{version}
+%if 0%{?rhel}
+Provides:         rubygem(%{gem_name}) = %{version}
 %endif
 
 %description
@@ -29,19 +27,17 @@ If you want to write your own AMQP client, this gem can help you with that.
 
 
 %package doc
-Summary: Documentation for %{name}
-Group: Documentation
-Requires: %{name} = %{version}-%{release}
-BuildArch: noarch
+Summary:          Documentation for %{name}
+Group:            Documentation
+Requires:         %{name} = %{version}-%{release}
+BuildArch:        noarch
 
 %description doc
 Documentation for %{name}.
 
 %prep
 gem unpack %{SOURCE0}
-
 %setup -q -D -T -n  %{gem_name}-%{version}
-
 gem spec %{SOURCE0} -l --ruby > %{gem_name}.gemspec
 
 # Remove effin_utf8 dependency as it has no effect on ruby 2.0 and higher
@@ -72,11 +68,7 @@ rm -f %{buildroot}%{gem_instdir}/{.gitignore,.gitmodules,.rspec,.travis.yml}
 # Run the test suite
 %check
 pushd .%{gem_instdir}
-%if 0%{?fedora} >= 22
-rspec2 -Ilib spec
-%else
 rspec -Ilib spec
-%endif
 popd
 
 %files
@@ -100,6 +92,9 @@ popd
 %doc %{gem_docdir}
 
 %changelog
+* Fri Dec 23 2016 Martin Mágr <mmagr@redhat.com> - 2.0.1-1
+- Updated to latest upstream release
+
 * Fri Apr 10 2015 Graeme Gillies <ggillies@redhat.com> - 1.9.2-3
 - Cleaned spec file to be more readable
 
