@@ -1,5 +1,14 @@
 %global gem_name amq-protocol
 
+# explicitly override gem macros to avoid problems with different
+# version and upstream_version
+%if 0%{?dlrn} > 0
+%global gem_instdir %{gem_dir}/gems/%{gem_name}-%{upstream_version}
+%global gem_cache   %{gem_dir}/cache/%{gem_name}-%{upstream_version}.gem
+%global gem_spec    %{gem_dir}/specifications/%{gem_name}-%{upstream_version}.gemspec
+%global gem_docdir  %{gem_dir}/doc/%{gem_name}-%{upstream_version}
+%endif
+
 Name:             rubygem-%{gem_name}
 Version:          2.0.1
 Release:          1%{?dist}
@@ -37,7 +46,13 @@ Documentation for %{name}.
 
 %prep
 gem unpack %{SOURCE0}
+
+%if 0%{?dlrn} > 0
+%setup -q -D -T -n  %{dlrn_nvr}
+%else
 %setup -q -D -T -n  %{gem_name}-%{version}
+%endif
+
 gem spec %{SOURCE0} -l --ruby > %{gem_name}.gemspec
 
 # Remove effin_utf8 dependency as it has no effect on ruby 2.0 and higher
@@ -52,7 +67,11 @@ gem build %{gem_name}.gemspec
 
 # %%gem_install compiles any C extensions and installs the gem into ./%%gem_dir
 # by default, so that we can move it into the buildroot in %%install
+%if 0%{?dlrn} > 0
+%gem_install -n %{gem_name}-%{upstream_version}.gem
+%else
 %gem_install
+%endif
 
 # Remove unnecessary gemspec file
 rm .%{gem_instdir}/%{gem_name}.gemspec
